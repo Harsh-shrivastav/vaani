@@ -1,0 +1,9 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Transcripts collection - allow read/write for authenticated users
+    match /transcripts/{document=**} {
+      allow read, write: if true;  // For development - restrict in production
+    }
+  }
+}
