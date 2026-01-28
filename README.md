@@ -1,6 +1,6 @@
-# Vaani – Real-Time AI Captioning & Sign Language Assistant
+# Vaani â€“ Real-Time AI Captioning & Sign Language Assistant
 
-> **Powered by Google Cloud** – A production-ready accessibility application for Deaf and Hard-of-Hearing users.
+> **Powered by Google Cloud** â€“ A production-ready accessibility application for Deaf and Hard-of-Hearing users.
 
 ![Google Cloud](https://img.shields.io/badge/Google%20Cloud-Ready-4285F4?style=flat&logo=google-cloud)
 ![Firebase](https://img.shields.io/badge/Firebase-Hosting-FFCA28?style=flat&logo=firebase)
@@ -16,7 +16,7 @@ Vaani is a real-time speech-to-text application that:
 - **Displays sign language videos** for each word
 - **Stores transcripts** in Cloud Firestore
 
-Built specifically for **accessibility** – making spoken communication accessible to everyone.
+Built specifically for **accessibility** â€“ making spoken communication accessible to everyone.
 
 ---
 
@@ -69,7 +69,7 @@ vaani/
 
 | Service | Purpose |
 |---------|---------|
-| **Gemini 1.5 Flash** | AI text simplification |
+| **Gemini 3 Flash** | AI text simplification |
 | **Cloud Speech-to-Text** | Real-time audio transcription |
 | **Cloud Firestore** | Transcript storage & history |
 | **Firebase Storage** | Sign language video hosting |
