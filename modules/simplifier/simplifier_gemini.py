@@ -3,8 +3,7 @@ Vaani - Text Simplification Module (Google Gemini)
 Uses Google Gemini 2.5 Pro API for AI-powered text simplification.
 """
 
-from google import genai
-from google.genai import types
+import google.generativeai as genai
 from dotenv import load_dotenv
 import os
 
@@ -18,10 +17,10 @@ if not GOOGLE_API_KEY:
     raise ValueError("❌ GOOGLE_API_KEY not found in .env file.")
 
 # Initialize client
-client = genai.Client(api_key=GOOGLE_API_KEY)
+genai.configure(api_key=GOOGLE_API_KEY)
 
 # Use Gemini 2.5 Pro for advanced reasoning
-MODEL_NAME = "gemini-3-flash"
+MODEL_NAME = "gemini-1.5-flash"
 
 # AI System Instruction for Text Simplification
 SIMPLIFICATION_PROMPT = """
@@ -73,10 +72,10 @@ def simplify_text(raw_text: str, target_language: str = "English") -> str:
 """
     
     try:
-        response = client.models.generate_content(
-            model=MODEL_NAME,
-            contents=prompt,
-            config=types.GenerateContentConfig(
+        model = genai.GenerativeModel(MODEL_NAME)
+        response = model.generate_content(
+            prompt,
+            generation_config=genai.GenerationConfig(
                 temperature=0.2,
                 max_output_tokens=1024,
             )
