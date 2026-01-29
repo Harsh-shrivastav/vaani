@@ -2,19 +2,8 @@
   "version": 2,
   "buildCommand": "chmod +x build.sh && ./build.sh",
   "outputDirectory": "client",
-  "builds": [
-    {
-      "src": "client/**",
-      "use": "@vercel/static"
-    }
-  ],
   "routes": [
-    { "src": "/assets/(.*)", "dest": "/client/assets/$1" },
-    { "src": "/(.*\\.css)", "dest": "/client/$1" },
-    { "src": "/(.*\\.js)", "dest": "/client/$1" },
-    { "src": "/(.*\\.html)", "dest": "/client/$1" },
-    { "src": "/(.*\\.mp4)", "dest": "/client/$1" },
-    { "src": "/(.*\\.png)", "dest": "/client/$1" },
-    { "src": "/", "dest": "/client/index.html" }
+    { "src": "/assets/(.*)", "dest": "/assets/$1" },
+    { "src": "/(.*)", "dest": "/$1" }
   ]
 }
