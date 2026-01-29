@@ -97,37 +97,37 @@ Accessibility-first design with theme toggle for comfortable viewing in any envi
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                         USER SPEAKS                              │
+│                         USER SPEAKS                             │
 └─────────────────────────────────────────────────────────────────┘
                               │
                               ▼
 ┌─────────────────────────────────────────────────────────────────┐
 │              🎙️ WEB SPEECH API (Speech Recognition)             │
-│                   Converts speech to raw text                    │
+│                   Converts speech to raw text                   │
 └─────────────────────────────────────────────────────────────────┘
                               │
                               ▼
 ┌─────────────────────────────────────────────────────────────────┐
-│                📝 RAW TRANSCRIPTION DISPLAY                      │
-│                  Shows live speech-to-text                       │
+│                📝 RAW TRANSCRIPTION DISPLAY                    │
+│                  Shows live speech-to-text                      │
 └─────────────────────────────────────────────────────────────────┘
                               │
                               ▼
 ┌─────────────────────────────────────────────────────────────────┐
-│              🧠 GOOGLE GEMINI AI (Text Simplification)           │
-│           Converts complex text to simple English                │
+│              🧠 GOOGLE GEMINI AI (Text Simplification)         │
+│           Converts complex text to simple English               │
 └─────────────────────────────────────────────────────────────────┘
                               │
                               ▼
 ┌─────────────────────────────────────────────────────────────────┐
-│               ✅ DEAF-FRIENDLY CAPTION DISPLAY                   │
-│                Shows simplified, clear text                      │
+│               ✅ DEAF-FRIENDLY CAPTION DISPLAY                  │
+│                Shows simplified, clear text                     │
 └─────────────────────────────────────────────────────────────────┘
                               │
                               ▼
 ┌─────────────────────────────────────────────────────────────────┐
-│              🤟 SIGN LANGUAGE VIDEO PLAYER                       │
-│         Plays ISL videos for each word sequentially              │
+│              🤟 SIGN LANGUAGE VIDEO PLAYER                      │
+│         Plays ISL videos for each word sequentially             │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
