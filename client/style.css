@@ -104,14 +104,14 @@ body {
   color: #111;
 }
 
-/* --- 3. Intro Animation (hidden initially - only for index page) --- */
+/* --- 3. Intro Animation --- */
 .container h1:not(.page-title), 
 .container > p, 
 .language-selector, 
 .controls, 
 .caption-box {
-  opacity: 0;
-  visibility: hidden;
+  opacity: 1;
+  visibility: visible;
 }
 
 /* --- 4. Layout --- */
