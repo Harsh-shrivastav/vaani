@@ -6,13 +6,6 @@
 
 *Breaking communication barriers for the Deaf and Hard-of-Hearing community*
 
-[![Live Demo](https://img.shields.io/badge/🌐_Live_Demo-Visit_Now-6366f1?style=for-the-badge)](https://vaanii.vercel.app/)
-[![Tech Stack](https://img.shields.io/badge/Built_With-Gemini_AI-4285F4?style=for-the-badge&logo=google&logoColor=white)](https://ai.google.dev/)
-[![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](LICENSE)
-
-<img src="https://img.shields.io/badge/TechSprint-2026-a78bfa?style=for-the-badge" alt="TechSprint 2026"/>
-
----
 
 **Vaani** transforms spoken words into accessible content through real-time captions, AI-simplified text, and Indian Sign Language (ISL) video playback — all running entirely in your browser.
 
