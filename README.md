@@ -5,6 +5,9 @@
 ![Google Cloud](https://img.shields.io/badge/Google%20Cloud-Ready-4285F4?style=flat&logo=google-cloud)
 ![Firebase](https://img.shields.io/badge/Firebase-Hosting-FFCA28?style=flat&logo=firebase)
 ![Gemini](https://img.shields.io/badge/Gemini-AI-8E75B2?style=flat&logo=google)
+![Render](https://img.shields.io/badge/Render-Deploy-46E3B7?style=flat&logo=render)
+
+> **Note:** Render deployment requires Python 3.11 (`runtime.txt` included in project root)
 
 ---
 
