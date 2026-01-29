@@ -105,13 +105,10 @@ body {
 }
 
 /* --- 3. Intro Animation --- */
-.container h1:not(.page-title), 
-.container > p, 
-.language-selector, 
-.controls, 
-.caption-box {
-  opacity: 1;
-  visibility: visible;
+/* All elements visible by default */
+h1, p, .language-selector, .controls, .caption-box, .container, .navbar {
+  opacity: 1 !important;
+  visibility: visible !important;
 }
 
 /* --- 4. Layout --- */
