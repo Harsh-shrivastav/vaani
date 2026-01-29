@@ -209,7 +209,7 @@ Accessibility-first design with theme toggle for comfortable viewing in any envi
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-username/vaani.git
+git clone https://github.com/Harsh-shrivastav/vaani
 
 # Navigate to project
 cd vaani
