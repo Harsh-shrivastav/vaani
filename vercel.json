@@ -1,0 +1,18 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "api/index.py",
+      "use": "@vercel/python"
+    }
+  ],
+  "routes": [
+    { "src": "/api/(.*)", "dest": "api/index.py" },
+    { "src": "/assets/(.*)", "dest": "client/assets/$1" },
+    { "src": "/(.*\\.css)", "dest": "client/$1" },
+    { "src": "/(.*\\.js)", "dest": "client/$1" },
+    { "src": "/(.*\\.html)", "dest": "client/$1" },
+    { "src": "/(.*\\.mp4)", "dest": "client/$1" },
+    { "src": "/", "dest": "client/index.html" }
+  ]
+}

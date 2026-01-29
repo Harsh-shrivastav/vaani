@@ -6,7 +6,7 @@
 // Configuration - Auto-detect environment
 const API_URL = window.location.hostname === 'localhost'
     ? 'http://localhost:8000'
-    : 'https://vaani.onrender.com';
+    : '/api';  // Vercel serverless
 
 // Page load animation using GSAP
 document.addEventListener('DOMContentLoaded', () => {
