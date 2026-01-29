@@ -1,24 +1,19 @@
 // ============================================
-// Vaani - Frontend-Only Application
-// No Backend Required - Direct Gemini API
-// API Key loaded from window.ENV (injected at build)
+// Vaani - MVP (Frontend-Only)
+// Real-time speech → Simple text → Sign language
 // ============================================
 
-// Get API key from environment (injected by build.sh)
-const GEMINI_API_KEY = window.ENV?.GEMINI_API_KEY || "";
+// API Key - Try env first, fallback to hardcoded for demo
+const GEMINI_API_KEY = window.ENV?.GEMINI_API_KEY || "AIzaSyCFgcS4IZagaybF9lHSbu5iaEB7B0r4U34";
 
-// Page load animation using GSAP
-document.addEventListener('DOMContentLoaded', () => {
-    const tl = gsap.timeline();
-    tl.to('h1', { opacity: 1, visibility: 'visible', y: -20, duration: 0.5, delay: 0.2 })
-      .to('p', { opacity: 1, visibility: 'visible', y: -10, duration: 0.4 }, "-=0.3")
-      .to('.language-selector', { opacity: 1, visibility: 'visible', duration: 0.5 }, "-=0.2")
-      .to('.controls', { opacity: 1, visibility: 'visible', duration: 0.5 }, "-=0.3")
-      .to('.caption-box', { opacity: 1, visibility: 'visible', stagger: 0.2, duration: 0.5 }, "-=0.3");
-});
+console.log("Vaani MVP loaded. API Key present:", !!GEMINI_API_KEY);
 
-// Direct Gemini API call for text simplification
+// ============================================
+// TEXT SIMPLIFICATION (Gemini API)
+// ============================================
 async function simplifyText(text) {
+    if (!text || text.trim().length === 0) return text;
+    
     try {
         const res = await fetch(
             `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`,
@@ -28,367 +23,284 @@ async function simplifyText(text) {
                 body: JSON.stringify({
                     contents: [{
                         parts: [{
-                            text: `Convert the following sentence into very simple easy English for deaf students. Return ONLY the simplified sentence. No explanation. No extra words. Sentence: "${text}"`
+                            text: `Convert this to simple English for deaf students. Return ONLY the simplified text, nothing else: "${text}"`
                         }]
                     }]
                 })
             }
         );
 
-        if (!res.ok) throw new Error();
+        if (!res.ok) {
+            console.warn("Gemini API error:", res.status);
+            return text; // Return original on error
+        }
 
         const data = await res.json();
-
-        let simplified = data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
-
-        // CLEAN unwanted AI text
-        simplified = simplified
-            .replace(/\[.*?\]/g, "")
-            .replace(/^(Sure|Here.*?:)/i, "")
-            .trim();
-
-        return simplified;
-
-    } catch {
-        return "";
+        let result = data?.candidates?.[0]?.content?.parts?.[0]?.text || text;
+        
+        // Clean AI artifacts
+        result = result.replace(/\[.*?\]/g, "").replace(/^(Sure|Here.*?:)/i, "").trim();
+        
+        return result || text;
+    } catch (e) {
+        console.error("Simplify error:", e);
+        return text; // Return original on error
     }
 }
 
-// Speech Recognition Setup
-window.SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-
-if (!window.SpeechRecognition) {
-    alert("Sorry, your browser doesn't support live speech recognition. Please use Chrome or Edge.");
-} else {
-    const speechRecognition = new SpeechRecognition();
-    const toggleButton = document.getElementById('toggle-btn');
-    const rawTranscript = document.getElementById('raw-text-output');
-    const simplifiedCaption = document.getElementById('simple-text-output');
-    const clearButton = document.getElementById('clear-btn');
-    const resimplifyButton = document.getElementById('resimplify-btn');
-    const languageSelector = document.querySelector('.language-selector');
-    const langButtons = document.querySelectorAll('.lang-btn');
-    const simplifiedBox = simplifiedCaption.closest('.caption-box');
-
-    let isListening = false;
-    let rawTextHistory = '';
-    let simplifiedTextHistory = '';
-    let targetLanguage = 'English';
-
-    speechRecognition.continuous = true;
-    speechRecognition.interimResults = true;
-    speechRecognition.lang = 'en-IN';
-
-    // Start or stop speech recognition
-    toggleButton.addEventListener('click', () => {
-        isListening = !isListening;
-        if (isListening) {
-            rawTranscript.value = "";
-            simplifiedCaption.textContent = "";
-            rawTextHistory = "";
-            simplifiedTextHistory = "";
-            speechRecognition.start();
-            toggleButton.textContent = 'Stop Listening';
-            toggleButton.classList.add('listening');
-        } else {
-            speechRecognition.stop();
-            toggleButton.textContent = 'Start Listening';
-            toggleButton.classList.remove('listening');
-        }
-    });
-
-    // Clear all transcripts
-    clearButton.addEventListener('click', () => {
-        rawTextHistory = '';
-        simplifiedTextHistory = '';
-        rawTranscript.value = '';
-        simplifiedCaption.textContent = '';
-    });
-
-    // Re-simplify manually edited text
-    resimplifyButton.addEventListener('click', async () => {
-        const editedText = rawTranscript.value.trim();
-        if (!editedText) return;
-        simplifiedCaption.textContent = "Processing...";
-        
-        const simplified = await simplifyText(editedText);
-        
-        // Only update if we got a valid response
-        if (simplified) {
-            simplifiedTextHistory = simplified;
-            simplifiedCaption.textContent = simplified;
-            
-            // Visual feedback
-            gsap.to(simplifiedBox, {
-                boxShadow: "0 0 40px 10px rgba(99, 102, 241, 0.3)",
-                duration: 0.3,
-                yoyo: true,
-                repeat: 1,
-                ease: "power1.inOut"
-            });
-            
-            playSignLanguage(simplified);
-        } else {
-            // Fallback: show original text if API fails
-            simplifiedCaption.textContent = simplifiedTextHistory || editedText;
-        }
-    });
-
-    // Language selection handler
-    languageSelector.addEventListener('click', (e) => {
-        if (e.target.classList.contains('lang-btn')) {
-            langButtons.forEach(btn => btn.classList.remove('active'));
-            e.target.classList.add('active');
-            targetLanguage = e.target.dataset.lang;
-        }
-    });
-
-    // Process speech recognition results
-    speechRecognition.onresult = async (event) => {
-        let interimTranscript = '';
-        let finalTranscript = '';
-
-        for (let i = event.resultIndex; i < event.results.length; ++i) {
-            const transcript = event.results[i][0].transcript;
-            if (event.results[i].isFinal) {
-                finalTranscript += transcript.trim() + ' ';
-            } else {
-                interimTranscript += transcript;
-            }
-        }
-
-        rawTranscript.value = rawTextHistory + interimTranscript;
-
-        if (finalTranscript) {
-            rawTextHistory += finalTranscript;
-            simplifiedCaption.textContent = simplifiedTextHistory + "Processing...";
-            
-            // Call Gemini API directly
-            const simplified = await simplifyText(finalTranscript);
-            console.log("Final transcript:", finalTranscript);
-            console.log("Simplified result:", simplified);
-            
-            // Only update if we got a valid response
-            if (simplified) {
-                // Visual feedback animation
-                gsap.to(simplifiedBox, {
-                    boxShadow: "0 0 40px 10px rgba(99, 102, 241, 0.3)",
-                    duration: 0.3,
-                    yoyo: true,
-                    repeat: 1,
-                    ease: "power1.inOut"
-                });
-
-                simplifiedTextHistory += simplified + ' ';
-                simplifiedCaption.textContent = simplifiedTextHistory;
-                console.log("Playing sign language for:", simplified);
-                playSignLanguage(simplified);
-            } else {
-                // Fallback: use raw text if API fails, still play sign language
-                simplifiedTextHistory += finalTranscript;
-                simplifiedCaption.textContent = simplifiedTextHistory;
-                console.log("API failed, playing sign language for raw:", finalTranscript);
-                playSignLanguage(finalTranscript);
-            }
-        } else if (interimTranscript) {
-            simplifiedCaption.textContent = simplifiedTextHistory + "Listening...";
-        }
-    };
-
-    function playSignLanguage(text) {
-        const videoPlayer = document.getElementById("videoPlayer");
-        const statusText = document.getElementById("sign-language-status");
-        
-        if (!videoPlayer) {
-            console.error("Video player element not found!");
-            return;
-        }
-
-        // Clean the text and create the playlist
-        const words = text.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, "").split(/\s+/);
-        const videoQueue = words
-            .filter(word => word.length > 0)
-            .map(word => {
-                // Title Case: first letter uppercase, rest lowercase
-                const titleCase = word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
-                // Use absolute path for Vercel static hosting
-                return `/assets/${titleCase}.mp4`;
-            });
-        
-        console.log("Sign Language Queue:", videoQueue);
-        
-        if (videoQueue.length === 0) return;
-
-        let currentVideoIndex = 0;
-        let hasPlayedAny = false;
-
-        // Clear previous event listeners
-        videoPlayer.onended = null;
-        videoPlayer.onerror = null;
-        videoPlayer.onloadeddata = null;
-        videoPlayer.oncanplay = null;
-
-        function playNextVideo() {
-            if (currentVideoIndex >= videoQueue.length) {
-                if (!hasPlayedAny && statusText) {
-                    statusText.textContent = "No sign language videos available for these words.";
-                    statusText.style.display = 'block';
-                    videoPlayer.style.display = 'none';
-                }
-                return;
-            }
-            
-            const nextVideoSrc = videoQueue[currentVideoIndex];
-            console.log("Trying to play:", nextVideoSrc);
-            
-            // Set up event handlers BEFORE setting src
-            videoPlayer.oncanplay = function() {
-                console.log("Can play:", nextVideoSrc);
-                videoPlayer.play()
-                    .then(() => {
-                        console.log("Playing:", nextVideoSrc);
-                        hasPlayedAny = true;
-                        if (statusText) statusText.style.display = 'none';
-                    })
-                    .catch(e => {
-                        console.warn(`Video play failed: ${nextVideoSrc}`, e.message);
-                        currentVideoIndex++;
-                        setTimeout(playNextVideo, 100);
-                    });
-            };
-            
-            videoPlayer.onerror = function() {
-                console.warn(`Video error, skipping: ${nextVideoSrc}`);
-                currentVideoIndex++;
-                setTimeout(playNextVideo, 100);
-            };
-            
-            videoPlayer.onended = function() {
-                console.log("Video ended:", nextVideoSrc);
-                currentVideoIndex++;
-                playNextVideo();
-            };
-            
-            // Show video player
-            videoPlayer.style.display = 'block';
-            videoPlayer.muted = true;
-            videoPlayer.playsInline = true;
-            
-            // Set source and load
-            videoPlayer.src = nextVideoSrc;
-            videoPlayer.load();
-        }
-
-        if (statusText) {
-            statusText.textContent = "Loading sign language...";
-            statusText.style.display = 'block';
-        }
-        playNextVideo();
-    }
-
-    // Auto-reconnect if recognition stops unexpectedly
-    speechRecognition.onend = () => {
-        if (isListening) speechRecognition.start();
-        else {
-            toggleButton.textContent = 'Start Listening';
-            toggleButton.classList.remove('listening');
-        }
-    };
-
-    // Handle speech recognition errors
-    speechRecognition.onerror = (event) => {
-        if (['not-allowed', 'permission-denied'].includes(event.error)) {
-            isListening = false;
-            toggleButton.textContent = 'Start Listening';
-            toggleButton.classList.remove('listening');
-            alert("Please allow microphone access to use this feature.");
-        } else if (event.error !== 'network') {
-            alert(`Error: ${event.error}`);
-        }
-    };
-}
-
-// Theme toggle functionality
-document.addEventListener('DOMContentLoaded', () => {
-    const themeToggle = document.getElementById('theme-toggle');
-    if (!themeToggle) return;
-
-    const root = document.documentElement;
-
-    if (localStorage.getItem('theme') === 'light') enableLightMode();
-    else enableDarkMode();
-
-    themeToggle.addEventListener('click', () => {
-        if (root.classList.contains('light-mode')) enableDarkMode();
-        else enableLightMode();
-    });
-
-    function enableLightMode() {
-        root.classList.add('light-mode');
-        document.body.style.backgroundColor = '#f7f7ff';
-        document.body.style.color = '#111';
-        themeToggle.textContent = '☀️';
-        localStorage.setItem('theme', 'light');
-    }
-
-    function enableDarkMode() {
-        root.classList.remove('light-mode');
-        document.body.style.backgroundColor = '#121212';
-        document.body.style.color = '#e0e0e0';
-        themeToggle.textContent = '🌙';
-        localStorage.setItem('theme', 'dark');
-    }
-});
-
-// Global test function for video playback
-function testVideo() {
+// ============================================
+// SIGN LANGUAGE VIDEO PLAYER
+// ============================================
+function playSignLanguage(text) {
     const videoPlayer = document.getElementById("videoPlayer");
     const statusText = document.getElementById("sign-language-status");
+    const testBtn = document.getElementById("test-video-btn");
     
-    console.log("Testing video playback...");
+    if (!videoPlayer) {
+        console.error("Video player not found!");
+        return;
+    }
     
-    // Test with a known video file
-    const testVideos = ["/assets/Hello.mp4", "/assets/A.mp4", "/assets/Good.mp4"];
-    let testIndex = 0;
+    // Hide test button when playing
+    if (testBtn) testBtn.style.display = 'none';
     
-    function tryNextVideo() {
-        if (testIndex >= testVideos.length) {
-            console.error("All test videos failed!");
-            if (statusText) {
-                statusText.textContent = "Video test failed - check console";
+    // Parse words and create video queue
+    const words = text.replace(/[^\w\s]/g, "").split(/\s+/).filter(w => w.length > 0);
+    const videoQueue = words.map(word => {
+        const titleCase = word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+        return { word: titleCase, src: `assets/${titleCase}.mp4` };
+    });
+    
+    console.log("Video queue:", videoQueue.map(v => v.word));
+    
+    if (videoQueue.length === 0) return;
+    
+    let index = 0;
+    let playedAny = false;
+    
+    function playNext() {
+        if (index >= videoQueue.length) {
+            if (!playedAny && statusText) {
+                statusText.textContent = "No videos for these words";
                 statusText.style.display = 'block';
+                videoPlayer.style.display = 'none';
             }
+            if (testBtn) testBtn.style.display = 'block';
             return;
         }
         
-        const testSrc = testVideos[testIndex];
-        console.log("Testing:", testSrc);
+        const current = videoQueue[index];
+        console.log(`Playing [${index + 1}/${videoQueue.length}]: ${current.word}`);
         
-        videoPlayer.oncanplay = function() {
-            console.log("✓ Can play:", testSrc);
-            videoPlayer.play()
-                .then(() => {
-                    console.log("✓ Playing:", testSrc);
-                    if (statusText) statusText.style.display = 'none';
-                })
-                .catch(e => {
-                    console.error("✗ Play failed:", e);
-                    testIndex++;
-                    tryNextVideo();
-                });
-        };
-        
-        videoPlayer.onerror = function(e) {
-            console.error("✗ Error loading:", testSrc, e);
-            testIndex++;
-            tryNextVideo();
-        };
-        
+        // Setup video
         videoPlayer.style.display = 'block';
+        if (statusText) statusText.style.display = 'none';
+        
+        videoPlayer.onloadeddata = () => {
+            videoPlayer.play().then(() => {
+                playedAny = true;
+            }).catch(e => {
+                console.warn(`Play error: ${current.word}`, e.message);
+                index++;
+                setTimeout(playNext, 50);
+            });
+        };
+        
+        videoPlayer.onerror = () => {
+            console.warn(`Video not found: ${current.word}`);
+            index++;
+            setTimeout(playNext, 50);
+        };
+        
+        videoPlayer.onended = () => {
+            index++;
+            playNext();
+        };
+        
+        videoPlayer.src = current.src;
         videoPlayer.muted = true;
-        videoPlayer.src = testSrc;
         videoPlayer.load();
     }
     
-    tryNextVideo();
+    if (statusText) {
+        statusText.textContent = "Loading...";
+        statusText.style.display = 'block';
+    }
+    
+    playNext();
 }
+
+// Global test function
+window.testVideo = function() {
+    console.log("Testing video...");
+    playSignLanguage("Hello");
+};
+
+// ============================================
+// SPEECH RECOGNITION
+// ============================================
+window.SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+if (!window.SpeechRecognition) {
+    alert("Speech recognition not supported. Use Chrome or Edge.");
+} else {
+    const recognition = new SpeechRecognition();
+    recognition.continuous = true;
+    recognition.interimResults = true;
+    recognition.lang = 'en-US';
+    
+    const toggleBtn = document.getElementById('toggle-btn');
+    const clearBtn = document.getElementById('clear-btn');
+    const resimplifyBtn = document.getElementById('resimplify-btn');
+    const rawOutput = document.getElementById('raw-text-output');
+    const simpleOutput = document.getElementById('simple-text-output');
+    
+    let isListening = false;
+    let rawHistory = '';
+    let simpleHistory = '';
+    
+    // Toggle listening
+    if (toggleBtn) {
+        toggleBtn.onclick = () => {
+            isListening = !isListening;
+            if (isListening) {
+                rawHistory = '';
+                simpleHistory = '';
+                if (rawOutput) rawOutput.value = '';
+                if (simpleOutput) simpleOutput.textContent = '';
+                recognition.start();
+                toggleBtn.textContent = '🔴 Stop Listening';
+                toggleBtn.classList.add('listening');
+                console.log("Started listening");
+            } else {
+                recognition.stop();
+                toggleBtn.textContent = '🎤 Start Listening';
+                toggleBtn.classList.remove('listening');
+                console.log("Stopped listening");
+            }
+        };
+    }
+    
+    // Clear button
+    if (clearBtn) {
+        clearBtn.onclick = () => {
+            rawHistory = '';
+            simpleHistory = '';
+            if (rawOutput) rawOutput.value = '';
+            if (simpleOutput) simpleOutput.textContent = '';
+        };
+    }
+    
+    // Re-simplify button
+    if (resimplifyBtn) {
+        resimplifyBtn.onclick = async () => {
+            const text = rawOutput?.value?.trim();
+            if (!text) return;
+            
+            if (simpleOutput) simpleOutput.textContent = "Processing...";
+            
+            const simplified = await simplifyText(text);
+            simpleHistory = simplified;
+            if (simpleOutput) simpleOutput.textContent = simplified;
+            
+            playSignLanguage(simplified);
+        };
+    }
+    
+    // Speech results
+    recognition.onresult = async (event) => {
+        let interim = '';
+        let final = '';
+        
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+            const transcript = event.results[i][0].transcript;
+            if (event.results[i].isFinal) {
+                final += transcript.trim() + ' ';
+            } else {
+                interim += transcript;
+            }
+        }
+        
+        // Update raw output
+        if (rawOutput) {
+            rawOutput.value = rawHistory + interim;
+        }
+        
+        // Process final transcript
+        if (final) {
+            rawHistory += final;
+            console.log("Final:", final);
+            
+            if (simpleOutput) simpleOutput.textContent = simpleHistory + "Processing...";
+            
+            const simplified = await simplifyText(final);
+            console.log("Simplified:", simplified);
+            
+            simpleHistory += simplified + ' ';
+            if (simpleOutput) simpleOutput.textContent = simpleHistory;
+            
+            // Play sign language
+            playSignLanguage(simplified);
+        } else if (interim && simpleOutput) {
+            simpleOutput.textContent = simpleHistory + "🎧 Listening...";
+        }
+    };
+    
+    // Auto-restart on end
+    recognition.onend = () => {
+        if (isListening) {
+            recognition.start();
+        } else if (toggleBtn) {
+            toggleBtn.textContent = '🎤 Start Listening';
+            toggleBtn.classList.remove('listening');
+        }
+    };
+    
+    // Error handling
+    recognition.onerror = (e) => {
+        console.error("Speech error:", e.error);
+        if (e.error === 'not-allowed') {
+            alert("Please allow microphone access.");
+            isListening = false;
+            if (toggleBtn) {
+                toggleBtn.textContent = '🎤 Start Listening';
+                toggleBtn.classList.remove('listening');
+            }
+        }
+    };
+}
+
+// ============================================
+// THEME TOGGLE
+// ============================================
+document.addEventListener('DOMContentLoaded', () => {
+    const themeBtn = document.getElementById('theme-toggle');
+    if (!themeBtn) return;
+    
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'light') {
+        document.body.classList.add('light-mode');
+        themeBtn.textContent = '☀️';
+    }
+    
+    themeBtn.onclick = () => {
+        document.body.classList.toggle('light-mode');
+        const isLight = document.body.classList.contains('light-mode');
+        themeBtn.textContent = isLight ? '☀️' : '🌙';
+        localStorage.setItem('theme', isLight ? 'light' : 'dark');
+    };
+});
+
+// ============================================
+// GSAP ANIMATIONS (if available)
+// ============================================
+document.addEventListener('DOMContentLoaded', () => {
+    if (typeof gsap !== 'undefined') {
+        gsap.to('h1', { opacity: 1, y: -20, duration: 0.5, delay: 0.2 });
+        gsap.to('p', { opacity: 1, y: -10, duration: 0.4, delay: 0.3 });
+        gsap.to('.controls', { opacity: 1, duration: 0.5, delay: 0.4 });
+        gsap.to('.caption-box', { opacity: 1, stagger: 0.2, duration: 0.5, delay: 0.5 });
+    }
+});
+
+console.log("✅ Vaani MVP ready!");
