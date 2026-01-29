@@ -108,13 +108,13 @@ Accessibility-first design with theme toggle for comfortable viewing in any envi
                               │
                               ▼
 ┌─────────────────────────────────────────────────────────────────┐
-│                📝 RAW TRANSCRIPTION DISPLAY                    │
+│                📝 RAW TRANSCRIPTION DISPLAY                     │
 │                  Shows live speech-to-text                      │
 └─────────────────────────────────────────────────────────────────┘
                               │
                               ▼
 ┌─────────────────────────────────────────────────────────────────┐
-│              🧠 GOOGLE GEMINI AI (Text Simplification)         │
+│              🧠 GOOGLE GEMINI AI (Text Simplification)          │
 │           Converts complex text to simple English               │
 └─────────────────────────────────────────────────────────────────┘
                               │
@@ -166,32 +166,32 @@ Accessibility-first design with theme toggle for comfortable viewing in any envi
 
 ```
 ┌──────────────────────────────────────────────────────────────────────┐
-│                           VAANI ARCHITECTURE                          │
+│                           VAANI ARCHITECTURE                         │
 ├──────────────────────────────────────────────────────────────────────┤
-│                                                                       │
+│                                                                      │
 │   ┌─────────────┐     ┌─────────────┐     ┌─────────────────────┐    │
-│   │   Browser   │────▶│ Web Speech  │────▶│   Raw Transcript    │    │
+│   │   Browser   │────▶│ Web Speech │────▶│   Raw Transcript    │    │
 │   │ Microphone  │     │    API      │     │      Display        │    │
 │   └─────────────┘     └─────────────┘     └──────────┬──────────┘    │
-│                                                       │               │
-│                                                       ▼               │
-│                              ┌────────────────────────────────────┐   │
-│                              │     Google Gemini API (Cloud)      │   │
-│                              │     Text Simplification Engine     │   │
-│                              └────────────────────────────────────┘   │
-│                                                       │               │
-│                                                       ▼               │
+│                                                       │              │
+│                                                       ▼              │
+│                              ┌────────────────────────────────────┐  │
+│                              │     Google Gemini API (Cloud)      │  │
+│                              │     Text Simplification Engine     │  │
+│                              └────────────────────────────────────┘  │
+│                                                       │              │
+│                                                       ▼              │
 │   ┌─────────────────────┐     ┌─────────────────────────────────┐    │
 │   │  ISL Video Library  │◀────│   Simplified Caption Display    │    │
 │   │   (150+ videos)     │     │                                 │    │
 │   └─────────────────────┘     └─────────────────────────────────┘    │
-│            │                                                          │
-│            ▼                                                          │
+│            │                                                         │
+│            ▼                                                         │
 │   ┌─────────────────────┐                                            │
 │   │  Video Player       │                                            │
 │   │  (Sequential Play)  │                                            │
 │   └─────────────────────┘                                            │
-│                                                                       │
+│                                                                      │
 └──────────────────────────────────────────────────────────────────────┘
 ```
 
