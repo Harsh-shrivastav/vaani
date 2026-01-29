@@ -165,6 +165,8 @@ if (!window.SpeechRecognition) {
             
             // Call Gemini API directly
             const simplified = await simplifyText(finalTranscript);
+            console.log("Final transcript:", finalTranscript);
+            console.log("Simplified result:", simplified);
             
             // Only update if we got a valid response
             if (simplified) {
@@ -179,10 +181,14 @@ if (!window.SpeechRecognition) {
 
                 simplifiedTextHistory += simplified + ' ';
                 simplifiedCaption.textContent = simplifiedTextHistory;
+                console.log("Playing sign language for:", simplified);
                 playSignLanguage(simplified);
             } else {
-                // Fallback: restore previous state if API fails
-                simplifiedCaption.textContent = simplifiedTextHistory || "Listening...";
+                // Fallback: use raw text if API fails, still play sign language
+                simplifiedTextHistory += finalTranscript;
+                simplifiedCaption.textContent = simplifiedTextHistory;
+                console.log("API failed, playing sign language for raw:", finalTranscript);
+                playSignLanguage(finalTranscript);
             }
         } else if (interimTranscript) {
             simplifiedCaption.textContent = simplifiedTextHistory + "Listening...";
