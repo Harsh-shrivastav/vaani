@@ -209,53 +209,54 @@ if (!window.SpeechRecognition) {
                 return `/assets/${titleCase}.mp4`;
             });
         
+        console.log("Sign Language Queue:", videoQueue);
+        
         if (videoQueue.length === 0) return;
 
         let currentVideoIndex = 0;
         let hasPlayedAny = false;
 
         function playNextVideo() {
-            if (currentVideoIndex < videoQueue.length) {
-                const nextVideoSrc = videoQueue[currentVideoIndex];
-                
-                fetch(nextVideoSrc, { method: 'HEAD' })
-                    .then(response => {
-                        if (response.ok) {
-                            if (statusText) statusText.style.display = 'none';
-                            videoPlayer.style.display = 'block';
-                            videoPlayer.src = nextVideoSrc;
-                            
-                            // Wait for video to be ready before playing
-                            videoPlayer.oncanplaythrough = () => {
-                                videoPlayer.play().catch(e => {
-                                    console.error(`Failed to play video: ${nextVideoSrc}`, e);
-                                    currentVideoIndex++;
-                                    playNextVideo();
-                                });
-                            };
-                            
-                            videoPlayer.load();
-                            hasPlayedAny = true;
-                        } else {
-                            console.warn(`Video not found: ${nextVideoSrc}`);
-                            currentVideoIndex++;
-                            playNextVideo();
-                        }
-                    })
-                    .catch(() => {
-                        currentVideoIndex++;
-                        playNextVideo();
-                    });
-            } else if (!hasPlayedAny) {
-                if (statusText) {
+            if (currentVideoIndex >= videoQueue.length) {
+                if (!hasPlayedAny && statusText) {
                     statusText.textContent = "No sign language videos available for these words.";
                     statusText.style.display = 'block';
+                    videoPlayer.style.display = 'none';
                 }
-                videoPlayer.style.display = 'none';
+                return;
             }
+            
+            const nextVideoSrc = videoQueue[currentVideoIndex];
+            console.log("Trying to play:", nextVideoSrc);
+            
+            // Hide status, show video
+            if (statusText) statusText.style.display = 'none';
+            videoPlayer.style.display = 'block';
+            videoPlayer.muted = true; // Required for autoplay
+            videoPlayer.src = nextVideoSrc;
+            
+            // Try to play directly
+            videoPlayer.play()
+                .then(() => {
+                    console.log("Playing:", nextVideoSrc);
+                    hasPlayedAny = true;
+                })
+                .catch(e => {
+                    console.warn(`Video not available: ${nextVideoSrc}`, e.message);
+                    currentVideoIndex++;
+                    playNextVideo();
+                });
         }
 
+        // When video ends, play next
         videoPlayer.onended = () => {
+            currentVideoIndex++;
+            playNextVideo();
+        };
+        
+        // Handle video errors (file not found)
+        videoPlayer.onerror = () => {
+            console.warn(`Video error, skipping: ${videoQueue[currentVideoIndex]}`);
             currentVideoIndex++;
             playNextVideo();
         };
