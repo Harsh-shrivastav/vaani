@@ -147,7 +147,7 @@ Accessibility-first design with theme toggle for comfortable viewing in any envi
 |-------|------------|
 | **Frontend** | HTML5, CSS3, JavaScript (ES6+) |
 | **Speech Recognition** | Web Speech API |
-| **AI Processing** | Google Gemini 1.5 Flash |
+| **AI Processing** | Google Gemini 3 Flash |
 | **Animations** | GSAP (GreenSock) |
 | **Sign Language** | Pre-recorded ISL MP4 videos |
 | **Hosting** | Vercel (Static) |
