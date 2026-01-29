@@ -59,113 +59,133 @@
       </div>
       
       <section class="content-section">
-        <h2>🎯 Our Mission</h2>
+        <h2>🎯 The Problem We're Solving</h2>
         <p>
-          Vaani aims to break down communication barriers for the deaf and hard-of-hearing community 
-          by providing real-time AI-powered captioning and sign language assistance. We believe that 
-          everyone deserves equal access to information and communication, regardless of their hearing abilities.
+          <strong>63 million people in India</strong> live with significant hearing impairment. Yet, most live events, 
+          classrooms, and meetings remain inaccessible.
         </p>
-        <p>
-          Our mission is to create an inclusive digital environment where deaf individuals can participate 
-          fully in conversations, education, and professional settings. Through cutting-edge AI technology, 
-          we're making communication accessible to millions of people across India and beyond.
-        </p>
-      </section>
-
-      <section class="content-section">
-        <h2>💡 What is Vaani?</h2>
-        <p>
-          Vaani (meaning "voice" in Hindi) is an intelligent captioning system that converts spoken 
-          language into deaf-friendly text and sign language interpretations. Powered by Google's 
-          advanced AI technologies, Vaani provides accurate, real-time transcription and simplification 
-          in multiple Indian languages.
-        </p>
-        <p>
-          The platform uses sophisticated natural language processing to transform complex spoken sentences 
-          into clear, easy-to-understand text. This ensures that deaf users can follow conversations in 
-          real-time without missing critical information.
-        </p>
-        <p>
-          Beyond simple transcription, Vaani intelligently simplifies vocabulary and sentence structure 
-          while preserving the original meaning and emotional context of the speech.
-        </p>
-      </section>
-
-      <section class="content-section">
-        <h2>🚀 Technology Stack</h2>
-        <p><strong>Our platform is built on enterprise-grade Google Cloud technologies:</strong></p>
+        <p><strong>The Challenge:</strong></p>
         <ul class="tech-list">
-          <li><strong>Google Gemini AI:</strong> Advanced language processing and text simplification with context-aware understanding</li>
-          <li><strong>Speech-to-Text API:</strong> Real-time audio transcription with support for multiple Indian languages and accents</li>
-          <li><strong>Cloud Firestore:</strong> Secure, scalable NoSQL database for storing transcripts and user preferences</li>
-          <li><strong>Firebase Storage:</strong> Media asset management for sign language video content</li>
-          <li><strong>FastAPI Backend:</strong> High-performance Python API server with async processing capabilities</li>
-          <li><strong>WebSocket Technology:</strong> Real-time bidirectional communication for instant caption delivery</li>
+          <li><strong>Live lectures & meetings</strong> rarely have real-time captions</li>
+          <li><strong>Complex vocabulary</strong> makes captions hard to follow for many Deaf users</li>
+          <li><strong>Sign language interpreters</strong> are expensive and not always available</li>
+          <li><strong>Existing solutions</strong> require expensive hardware or complex setup</li>
+          <li><strong>Low-resource environments</strong> lack access to assistive technology</li>
+        </ul>
+        <p>
+          The Deaf and Hard-of-Hearing community faces daily communication barriers that limit their participation 
+          in education, workplace, and social settings.
+        </p>
+      </section>
+
+      <section class="content-section">
+        <h2>💡 Our Solution</h2>
+        <p>
+          <strong>Vaani</strong> is a browser-based accessibility tool that provides:
+        </p>
+        <ul class="tech-list">
+          <li><strong>Real-Time Captions</strong> — Instant speech-to-text transcription</li>
+          <li><strong>AI Simplification</strong> — Complex sentences converted to easy-to-read English</li>
+          <li><strong>Sign Language Videos</strong> — Automatic ISL video playback for each word</li>
+        </ul>
+        <p>
+          All running <strong>100% in the browser</strong> — no installations, no backend servers, no waiting.
+        </p>
+        <div style="margin-top: 1.5rem; padding: 1.5rem; background: rgba(167, 139, 250, 0.1); border-radius: 12px; border-left: 4px solid var(--primary-color);">
+          <h3 style="margin-top: 0;">Why Vaani?</h3>
+          <p><strong>Traditional Solutions:</strong> Requires installation, needs powerful hardware, expensive subscriptions, complex setup, text-only captions</p>
+          <p><strong>Vaani:</strong> Zero installation, works on any device, completely free, open and use, captions + sign language</p>
+        </div>
+      </section>
+
+      <section class="content-section">
+        <h2>�️ Technology Stack</h2>
+        <ul class="tech-list">
+          <li><strong>Frontend:</strong> HTML5, CSS3, JavaScript (ES6+)</li>
+          <li><strong>Speech Recognition:</strong> Web Speech API</li>
+          <li><strong>AI Processing:</strong> Google Gemini 1.5 Flash</li>
+          <li><strong>Animations:</strong> GSAP (GreenSock)</li>
+          <li><strong>Sign Language:</strong> Pre-recorded ISL MP4 videos (150+ signs)</li>
+          <li><strong>Hosting:</strong> Vercel (Static)</li>
+          <li><strong>Design:</strong> Atkinson Hyperlegible Font (Accessibility-optimized)</li>
+        </ul>
+        <p style="margin-top: 1.5rem;"><strong>Why This Stack?</strong></p>
+        <ul class="tech-list">
+          <li><strong>No Backend</strong> = No cold starts, no server costs, instant availability</li>
+          <li><strong>Web Speech API</strong> = Native browser support, no external dependencies</li>
+          <li><strong>Gemini Flash</strong> = Fast, accurate AI at minimal latency</li>
+          <li><strong>Static Hosting</strong> = 99.99% uptime, global CDN distribution</li>
         </ul>
       </section>
 
       <section class="content-section">
-        <h2>🌍 Language Support</h2>
-        <p>
-          Currently supporting English, Hindi, and Marathi with high accuracy across different accents 
-          and speaking styles. Our multilingual approach ensures accessibility across diverse linguistic 
-          communities in India.
-        </p>
-        <p>
-          <strong>Language Features:</strong>
-        </p>
+        <h2>🌍 Social Impact</h2>
+        <p><strong>Who Benefits?</strong></p>
         <ul class="tech-list">
-          <li>Real-time translation between supported languages</li>
-          <li>Regional dialect recognition for improved accuracy</li>
-          <li>Code-switching support for bilingual conversations</li>
-          <li>Automatic language detection</li>
+          <li><strong>Deaf Students</strong> — Follow lectures in real-time without interpreters</li>
+          <li><strong>Hard-of-Hearing Professionals</strong> — Participate fully in meetings</li>
+          <li><strong>Sign Language Learners</strong> — Learn ISL through visual word-to-sign mapping</li>
+          <li><strong>Educators</strong> — Make classrooms more inclusive</li>
+          <li><strong>Event Organizers</strong> — Provide instant accessibility at events</li>
         </ul>
-        <p>
-          We're actively working on expanding support to Tamil, Telugu, Bengali, Gujarati, and more 
-          Indian languages to serve a wider audience.
-        </p>
-      </section>
-
-      <section class="content-section">
-        <h2>👥 Who We Serve</h2>
-        <p><strong>Vaani is designed for diverse user groups:</strong></p>
+        <p style="margin-top: 1.5rem;"><strong>Impact Potential:</strong></p>
         <ul class="tech-list">
-          <li><strong>Deaf and Hard-of-Hearing Individuals:</strong> Primary users benefiting from real-time captioning and sign language integration</li>
-          <li><strong>Educational Institutions:</strong> Schools, colleges, and online learning platforms ensuring inclusive education</li>
-          <li><strong>Corporate Sector:</strong> Businesses conducting accessible meetings, presentations, and training sessions</li>
-          <li><strong>Healthcare Providers:</strong> Hospitals and clinics improving patient-doctor communication</li>
-          <li><strong>Government Services:</strong> Public offices and services ensuring equal access to information</li>
-          <li><strong>Content Creators:</strong> YouTubers and streamers making their content accessible to all</li>
-          <li><strong>Event Organizers:</strong> Conferences, webinars, and live events with inclusive accessibility</li>
+          <li><strong>63M+ Deaf individuals in India</strong> can benefit</li>
+          <li><strong>Zero cost</strong> removes economic barriers</li>
+          <li><strong>Browser-based</strong> ensures universal access</li>
+          <li><strong>No training required</strong> for immediate adoption</li>
         </ul>
       </section>
 
       <section class="content-section">
-        <h2>🎓 Our Team</h2>
-        <p>
-          Vaani is developed by a passionate team of engineers, AI researchers, and accessibility advocates 
-          committed to creating inclusive technology. Our team combines expertise in artificial intelligence, 
-          linguistics, and deaf community engagement to build solutions that truly make a difference.
+        <h2>� Future Scope</h2>
+        <ul class="tech-list">
+          <li><strong>Regional Languages</strong> — Hindi, Tamil, Marathi caption support (🔄 Planned)</li>
+          <li><strong>Custom Vocabulary</strong> — Domain-specific word simplification (🔄 Planned)</li>
+          <li><strong>Offline Mode</strong> — Cached videos + local speech recognition (🔄 Research)</li>
+          <li><strong>Mobile App</strong> — React Native / Flutter apps (🔄 Planned)</li>
+          <li><strong>AI Sign Generation</strong> — Real-time avatar-based signing (🔄 Research)</li>
+          <li><strong>Classroom Integration</strong> — LMS plugins (Moodle, Canvas) (🔄 Planned)</li>
+          <li><strong>Multi-Speaker Detection</strong> — Identify and label different speakers (🔄 Research)</li>
+        </ul>
+      </section>
+
+      <section class="content-section">
+        <h2>👥 Our Team</h2>
+        <p style="margin-bottom: 1.5rem;">
+          Vaani is developed by a passionate team committed to creating inclusive technology:
         </p>
-        <p>
-          We actively collaborate with deaf community members to ensure our platform meets real-world needs 
-          and provides genuine value to its users.
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem;">
+          <div style="padding: 1.5rem; background: rgba(167, 139, 250, 0.1); border-radius: 12px; text-align: center;">
+            <h3 style="margin-top: 0; color: var(--primary-color);">Harsh Shrivastav</h3>
+            <p style="margin-bottom: 0;">Full-Stack Developer & AI Integration</p>
+          </div>
+          <div style="padding: 1.5rem; background: rgba(167, 139, 250, 0.1); border-radius: 12px; text-align: center;">
+            <h3 style="margin-top: 0; color: var(--primary-color);">Priyanshu</h3>
+            <p style="margin-bottom: 0;">Frontend Developer & UI/UX Design</p>
+          </div>
+        </div>
+        <p style="margin-top: 1.5rem; text-align: center; font-style: italic; color: var(--primary-color);">
+          Built with ❤️ for TechSprint 2026
         </p>
       </section>
 
       <section class="content-section">
-        <h2>📞 Contact Us</h2>
+        <h2>🌐 Live Demo</h2>
         <p>
-          Have questions, feedback, or partnership inquiries? We'd love to hear from you!
+          <strong>Try Vaani now:</strong> <a href="https://vaanii.vercel.app" target="_blank" style="color: var(--primary-color); font-weight: 600;">https://vaanii.vercel.app</a>
         </p>
-        <p>
-          <strong>Email:</strong> <a href="mailto:support@vaani.ai">support@vaani.ai</a><br>
-          <strong>Support:</strong> <a href="mailto:help@vaani.ai">help@vaani.ai</a><br>
-          <strong>Business:</strong> <a href="mailto:partnerships@vaani.ai">partnerships@vaani.ai</a>
-        </p>
-        <p>
-          Follow us on social media for updates, tips, and accessibility news. Join our community 
-          of users working together to make communication accessible for everyone.
+        <p><strong>Demo Instructions:</strong></p>
+        <ul class="tech-list">
+          <li>Open the link in Chrome or Edge</li>
+          <li>Allow microphone access when prompted</li>
+          <li>Click <strong>"Start Listening"</strong></li>
+          <li>Speak clearly into your microphone</li>
+          <li>Watch real-time captions and sign language videos appear!</li>
+        </ul>
+        <p style="margin-top: 2rem; text-align: center; padding: 1.5rem; background: rgba(167, 139, 250, 0.1); border-radius: 12px;">
+          <strong>🎙️ Vaani — Making Every Voice Visible</strong><br>
+          <em>Built for accessibility. Designed for everyone.</em>
         </p>
       </section>
     </div>
