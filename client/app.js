@@ -203,8 +203,10 @@ if (!window.SpeechRecognition) {
         const videoQueue = words
             .filter(word => word.length > 0)
             .map(word => {
+                // Title Case: first letter uppercase, rest lowercase
                 const titleCase = word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
-                return `assets/${titleCase}.mp4`;
+                // Use absolute path for Vercel static hosting
+                return `/assets/${titleCase}.mp4`;
             });
         
         if (videoQueue.length === 0) return;
@@ -222,12 +224,17 @@ if (!window.SpeechRecognition) {
                             if (statusText) statusText.style.display = 'none';
                             videoPlayer.style.display = 'block';
                             videoPlayer.src = nextVideoSrc;
+                            
+                            // Wait for video to be ready before playing
+                            videoPlayer.oncanplaythrough = () => {
+                                videoPlayer.play().catch(e => {
+                                    console.error(`Failed to play video: ${nextVideoSrc}`, e);
+                                    currentVideoIndex++;
+                                    playNextVideo();
+                                });
+                            };
+                            
                             videoPlayer.load();
-                            videoPlayer.play().catch(e => {
-                                console.error(`Failed to play video: ${nextVideoSrc}`, e);
-                                currentVideoIndex++;
-                                playNextVideo();
-                            });
                             hasPlayedAny = true;
                         } else {
                             console.warn(`Video not found: ${nextVideoSrc}`);
