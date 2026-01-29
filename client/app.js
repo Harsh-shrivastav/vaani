@@ -216,6 +216,12 @@ if (!window.SpeechRecognition) {
         let currentVideoIndex = 0;
         let hasPlayedAny = false;
 
+        // Clear previous event listeners
+        videoPlayer.onended = null;
+        videoPlayer.onerror = null;
+        videoPlayer.onloadeddata = null;
+        videoPlayer.oncanplay = null;
+
         function playNextVideo() {
             if (currentVideoIndex >= videoQueue.length) {
                 if (!hasPlayedAny && statusText) {
@@ -229,42 +235,48 @@ if (!window.SpeechRecognition) {
             const nextVideoSrc = videoQueue[currentVideoIndex];
             console.log("Trying to play:", nextVideoSrc);
             
-            // Hide status, show video
-            if (statusText) statusText.style.display = 'none';
-            videoPlayer.style.display = 'block';
-            videoPlayer.muted = true; // Required for autoplay
-            videoPlayer.src = nextVideoSrc;
-            videoPlayer.load(); // Load video before playing
-            
-            // Wait for video to be loadable then play
-            videoPlayer.onloadeddata = () => {
+            // Set up event handlers BEFORE setting src
+            videoPlayer.oncanplay = function() {
+                console.log("Can play:", nextVideoSrc);
                 videoPlayer.play()
                     .then(() => {
                         console.log("Playing:", nextVideoSrc);
                         hasPlayedAny = true;
+                        if (statusText) statusText.style.display = 'none';
                     })
                     .catch(e => {
                         console.warn(`Video play failed: ${nextVideoSrc}`, e.message);
                         currentVideoIndex++;
-                        playNextVideo();
+                        setTimeout(playNextVideo, 100);
                     });
             };
+            
+            videoPlayer.onerror = function() {
+                console.warn(`Video error, skipping: ${nextVideoSrc}`);
+                currentVideoIndex++;
+                setTimeout(playNextVideo, 100);
+            };
+            
+            videoPlayer.onended = function() {
+                console.log("Video ended:", nextVideoSrc);
+                currentVideoIndex++;
+                playNextVideo();
+            };
+            
+            // Show video player
+            videoPlayer.style.display = 'block';
+            videoPlayer.muted = true;
+            videoPlayer.playsInline = true;
+            
+            // Set source and load
+            videoPlayer.src = nextVideoSrc;
+            videoPlayer.load();
         }
 
-        // When video ends, play next
-        videoPlayer.onended = () => {
-            currentVideoIndex++;
-            playNextVideo();
-        };
-        
-        // Handle video errors (file not found)
-        videoPlayer.onerror = () => {
-            console.warn(`Video error, skipping: ${videoQueue[currentVideoIndex]}`);
-            currentVideoIndex++;
-            playNextVideo();
-        };
-
-        if (statusText) statusText.textContent = "Loading sign language...";
+        if (statusText) {
+            statusText.textContent = "Loading sign language...";
+            statusText.style.display = 'block';
+        }
         playNextVideo();
     }
 
@@ -321,3 +333,56 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem('theme', 'dark');
     }
 });
+
+// Global test function for video playback
+function testVideo() {
+    const videoPlayer = document.getElementById("videoPlayer");
+    const statusText = document.getElementById("sign-language-status");
+    
+    console.log("Testing video playback...");
+    
+    // Test with a known video file
+    const testVideos = ["/assets/Hello.mp4", "/assets/A.mp4", "/assets/Good.mp4"];
+    let testIndex = 0;
+    
+    function tryNextVideo() {
+        if (testIndex >= testVideos.length) {
+            console.error("All test videos failed!");
+            if (statusText) {
+                statusText.textContent = "Video test failed - check console";
+                statusText.style.display = 'block';
+            }
+            return;
+        }
+        
+        const testSrc = testVideos[testIndex];
+        console.log("Testing:", testSrc);
+        
+        videoPlayer.oncanplay = function() {
+            console.log("✓ Can play:", testSrc);
+            videoPlayer.play()
+                .then(() => {
+                    console.log("✓ Playing:", testSrc);
+                    if (statusText) statusText.style.display = 'none';
+                })
+                .catch(e => {
+                    console.error("✗ Play failed:", e);
+                    testIndex++;
+                    tryNextVideo();
+                });
+        };
+        
+        videoPlayer.onerror = function(e) {
+            console.error("✗ Error loading:", testSrc, e);
+            testIndex++;
+            tryNextVideo();
+        };
+        
+        videoPlayer.style.display = 'block';
+        videoPlayer.muted = true;
+        videoPlayer.src = testSrc;
+        videoPlayer.load();
+    }
+    
+    tryNextVideo();
+}
