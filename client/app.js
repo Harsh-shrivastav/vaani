@@ -1,12 +1,11 @@
 // ============================================
-// Vaani - Frontend Application
-// Google Cloud Technology Stack
+// Vaani - Frontend-Only Application
+// No Backend Required - Direct Gemini API
 // ============================================
 
-// Configuration - Auto-detect environment
-const API_URL = window.location.hostname === 'localhost'
-    ? 'http://localhost:8000'
-    : '/api';  // Vercel serverless
+// Gemini API Configuration
+const GEMINI_API_KEY = "AIzaSyCFgcS4IZagaybF9lHSbu5iaEB7B0r4U34";
+const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
 
 // Page load animation using GSAP
 document.addEventListener('DOMContentLoaded', () => {
@@ -18,6 +17,41 @@ document.addEventListener('DOMContentLoaded', () => {
       .to('.caption-box', { opacity: 1, visibility: 'visible', stagger: 0.2, duration: 0.5 }, "-=0.3");
 });
 
+// Direct Gemini API call for text simplification
+async function simplifyText(text, language = "English") {
+    const prompt = `You are an AI assistant for Deaf and Hard-of-Hearing users.
+Simplify this text into simple, clear ${language} sentences.
+Use 5th-grade vocabulary. Use active voice. Remove filler words (um, uh, you know).
+Only output the simplified text, nothing else.
+
+Text to simplify: "${text}"`;
+
+    try {
+        const response = await fetch(GEMINI_API_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                contents: [{
+                    parts: [{ text: prompt }]
+                }],
+                generationConfig: {
+                    temperature: 0.2,
+                    maxOutputTokens: 256
+                }
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error(`API Error: ${response.status}`);
+        }
+
+        const data = await response.json();
+        return data.candidates[0].content.parts[0].text.trim();
+    } catch (error) {
+        console.error("Gemini API Error:", error);
+        return `[Error] ${text}`;
+    }
+}
 
 // Speech Recognition Setup
 window.SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -71,11 +105,25 @@ if (!window.SpeechRecognition) {
     });
 
     // Re-simplify manually edited text
-    resimplifyButton.addEventListener('click', () => {
+    resimplifyButton.addEventListener('click', async () => {
         const editedText = rawTranscript.value.trim();
         if (!editedText) return;
         simplifiedCaption.textContent = "Processing...";
-        sendToBackend(editedText, true, targetLanguage);
+        
+        const simplified = await simplifyText(editedText, targetLanguage);
+        simplifiedTextHistory = simplified;
+        simplifiedCaption.textContent = simplified;
+        
+        // Visual feedback
+        gsap.to(simplifiedBox, {
+            boxShadow: "0 0 40px 10px rgba(99, 102, 241, 0.3)",
+            duration: 0.3,
+            yoyo: true,
+            repeat: 1,
+            ease: "power1.inOut"
+        });
+        
+        playSignLanguage(simplified);
     });
 
     // Language selection handler
@@ -88,7 +136,7 @@ if (!window.SpeechRecognition) {
     });
 
     // Process speech recognition results
-    speechRecognition.onresult = (event) => {
+    speechRecognition.onresult = async (event) => {
         let interimTranscript = '';
         let finalTranscript = '';
 
@@ -106,24 +154,10 @@ if (!window.SpeechRecognition) {
         if (finalTranscript) {
             rawTextHistory += finalTranscript;
             simplifiedCaption.textContent = simplifiedTextHistory + "Processing...";
-            sendToBackend(finalTranscript, false, targetLanguage);
-        } else if (interimTranscript) {
-            simplifiedCaption.textContent = simplifiedTextHistory + "Listening...";
-        }
-    };
-
-    // Send text to backend for AI simplification (Google Gemini)
-    async function sendToBackend(textToSimplify, isFullReplace = false, language) {
-        try {
-            const response = await fetch(`${API_URL}/simplify-text`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ text: textToSimplify, language })
-            });
-
-            if (!response.ok) throw new Error(`HTTP error: ${response.status}`);
-            const data = await response.json();
-
+            
+            // Call Gemini API directly
+            const simplified = await simplifyText(finalTranscript, targetLanguage);
+            
             // Visual feedback animation
             gsap.to(simplifiedBox, {
                 boxShadow: "0 0 40px 10px rgba(99, 102, 241, 0.3)",
@@ -133,17 +167,13 @@ if (!window.SpeechRecognition) {
                 ease: "power1.inOut"
             });
 
-            if (isFullReplace) {
-                simplifiedTextHistory = data.simple_text;
-            } else {
-                simplifiedTextHistory += data.simple_text + ' ';
-            }
+            simplifiedTextHistory += simplified + ' ';
             simplifiedCaption.textContent = simplifiedTextHistory;
-            playSignLanguage(data.simple_text);
-        } catch (error) {
-            simplifiedCaption.textContent = "[Error processing text]";
+            playSignLanguage(simplified);
+        } else if (interimTranscript) {
+            simplifiedCaption.textContent = simplifiedTextHistory + "Listening...";
         }
-    }
+    };
 
     function playSignLanguage(text) {
         const videoPlayer = document.getElementById("videoPlayer");
@@ -155,33 +185,26 @@ if (!window.SpeechRecognition) {
         }
 
         // Clean the text and create the playlist
-        // Convert to Title Case to match video filenames (e.g., Hello.mp4, Thank.mp4)
         const words = text.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, "").split(/\s+/);
         const videoQueue = words
             .filter(word => word.length > 0)
             .map(word => {
-                // Convert to Title Case (first letter uppercase, rest lowercase)
                 const titleCase = word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
                 return `assets/${titleCase}.mp4`;
             });
         
-        if (videoQueue.length === 0) {
-            return;
-        }
+        if (videoQueue.length === 0) return;
 
         let currentVideoIndex = 0;
         let hasPlayedAny = false;
 
-        // Function to play the next video in the queue
         function playNextVideo() {
             if (currentVideoIndex < videoQueue.length) {
                 const nextVideoSrc = videoQueue[currentVideoIndex];
                 
-                // Check if video exists before trying to play
                 fetch(nextVideoSrc, { method: 'HEAD' })
                     .then(response => {
                         if (response.ok) {
-                            // Video exists, play it
                             if (statusText) statusText.style.display = 'none';
                             videoPlayer.style.display = 'block';
                             videoPlayer.src = nextVideoSrc;
@@ -193,19 +216,16 @@ if (!window.SpeechRecognition) {
                             });
                             hasPlayedAny = true;
                         } else {
-                            // Video doesn't exist, skip to next
                             console.warn(`Video not found: ${nextVideoSrc}`);
                             currentVideoIndex++;
                             playNextVideo();
                         }
                     })
                     .catch(() => {
-                        // Network error, skip to next
                         currentVideoIndex++;
                         playNextVideo();
                     });
             } else if (!hasPlayedAny) {
-                // No videos were played, show message
                 if (statusText) {
                     statusText.textContent = "No sign language videos available for these words.";
                     statusText.style.display = 'block';
@@ -214,13 +234,11 @@ if (!window.SpeechRecognition) {
             }
         }
 
-        // Event listener to automatically play the next video when one ends
         videoPlayer.onended = () => {
             currentVideoIndex++;
             playNextVideo();
         };
 
-        // Start playing the first video
         if (statusText) statusText.textContent = "Loading sign language...";
         playNextVideo();
     }
@@ -249,32 +267,32 @@ if (!window.SpeechRecognition) {
 
 // Theme toggle functionality
 document.addEventListener('DOMContentLoaded', () => {
-  const themeToggle = document.getElementById('theme-toggle');
-  if (!themeToggle) return;
+    const themeToggle = document.getElementById('theme-toggle');
+    if (!themeToggle) return;
 
-  const root = document.documentElement;
+    const root = document.documentElement;
 
-  if (localStorage.getItem('theme') === 'light') enableLightMode();
-  else enableDarkMode();
+    if (localStorage.getItem('theme') === 'light') enableLightMode();
+    else enableDarkMode();
 
-  themeToggle.addEventListener('click', () => {
-    if (root.classList.contains('light-mode')) enableDarkMode();
-    else enableLightMode();
-  });
+    themeToggle.addEventListener('click', () => {
+        if (root.classList.contains('light-mode')) enableDarkMode();
+        else enableLightMode();
+    });
 
-  function enableLightMode() {
-    root.classList.add('light-mode');
-    document.body.style.backgroundColor = '#f7f7ff';
-    document.body.style.color = '#111';
-    themeToggle.textContent = '☀️';
-    localStorage.setItem('theme', 'light');
-  }
+    function enableLightMode() {
+        root.classList.add('light-mode');
+        document.body.style.backgroundColor = '#f7f7ff';
+        document.body.style.color = '#111';
+        themeToggle.textContent = '☀️';
+        localStorage.setItem('theme', 'light');
+    }
 
-  function enableDarkMode() {
-    root.classList.remove('light-mode');
-    document.body.style.backgroundColor = '#121212';
-    document.body.style.color = '#e0e0e0';
-    themeToggle.textContent = '🌙';
-    localStorage.setItem('theme', 'dark');
-  }
+    function enableDarkMode() {
+        root.classList.remove('light-mode');
+        document.body.style.backgroundColor = '#121212';
+        document.body.style.color = '#e0e0e0';
+        themeToggle.textContent = '🌙';
+        localStorage.setItem('theme', 'dark');
+    }
 });
