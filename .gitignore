@@ -1,3 +1,6 @@
 .env
 venv/
 __pycache__/
+
+# Environment file (generated at build time with API key)
+client/env.js

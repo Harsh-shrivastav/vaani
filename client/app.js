@@ -1,11 +1,11 @@
 // ============================================
 // Vaani - Frontend-Only Application
 // No Backend Required - Direct Gemini API
+// API Key loaded from window.ENV (injected at build)
 // ============================================
 
-// Gemini API Configuration
-const GEMINI_API_KEY = "AIzaSyCFgcS4IZagaybF9lHSbu5iaEB7B0r4U34";
-const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
+// Get API key from environment (injected by build.sh)
+const GEMINI_API_KEY = window.ENV?.GEMINI_API_KEY || "";
 
 // Page load animation using GSAP
 document.addEventListener('DOMContentLoaded', () => {
@@ -18,38 +18,39 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // Direct Gemini API call for text simplification
-async function simplifyText(text, language = "English") {
-    const prompt = `You are an AI assistant for Deaf and Hard-of-Hearing users.
-Simplify this text into simple, clear ${language} sentences.
-Use 5th-grade vocabulary. Use active voice. Remove filler words (um, uh, you know).
-Only output the simplified text, nothing else.
-
-Text to simplify: "${text}"`;
-
+async function simplifyText(text) {
     try {
-        const response = await fetch(GEMINI_API_URL, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                contents: [{
-                    parts: [{ text: prompt }]
-                }],
-                generationConfig: {
-                    temperature: 0.2,
-                    maxOutputTokens: 256
-                }
-            })
-        });
+        const res = await fetch(
+            `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`,
+            {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    contents: [{
+                        parts: [{
+                            text: `Convert the following sentence into very simple easy English for deaf students. Return ONLY the simplified sentence. No explanation. No extra words. Sentence: "${text}"`
+                        }]
+                    }]
+                })
+            }
+        );
 
-        if (!response.ok) {
-            throw new Error(`API Error: ${response.status}`);
-        }
+        if (!res.ok) throw new Error();
 
-        const data = await response.json();
-        return data.candidates[0].content.parts[0].text.trim();
-    } catch (error) {
-        console.error("Gemini API Error:", error);
-        return `[Error] ${text}`;
+        const data = await res.json();
+
+        let simplified = data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
+
+        // CLEAN unwanted AI text
+        simplified = simplified
+            .replace(/\[.*?\]/g, "")
+            .replace(/^(Sure|Here.*?:)/i, "")
+            .trim();
+
+        return simplified;
+
+    } catch {
+        return "";
     }
 }
 
@@ -110,20 +111,27 @@ if (!window.SpeechRecognition) {
         if (!editedText) return;
         simplifiedCaption.textContent = "Processing...";
         
-        const simplified = await simplifyText(editedText, targetLanguage);
-        simplifiedTextHistory = simplified;
-        simplifiedCaption.textContent = simplified;
+        const simplified = await simplifyText(editedText);
         
-        // Visual feedback
-        gsap.to(simplifiedBox, {
-            boxShadow: "0 0 40px 10px rgba(99, 102, 241, 0.3)",
-            duration: 0.3,
-            yoyo: true,
-            repeat: 1,
-            ease: "power1.inOut"
-        });
-        
-        playSignLanguage(simplified);
+        // Only update if we got a valid response
+        if (simplified) {
+            simplifiedTextHistory = simplified;
+            simplifiedCaption.textContent = simplified;
+            
+            // Visual feedback
+            gsap.to(simplifiedBox, {
+                boxShadow: "0 0 40px 10px rgba(99, 102, 241, 0.3)",
+                duration: 0.3,
+                yoyo: true,
+                repeat: 1,
+                ease: "power1.inOut"
+            });
+            
+            playSignLanguage(simplified);
+        } else {
+            // Fallback: show original text if API fails
+            simplifiedCaption.textContent = simplifiedTextHistory || editedText;
+        }
     });
 
     // Language selection handler
@@ -156,20 +164,26 @@ if (!window.SpeechRecognition) {
             simplifiedCaption.textContent = simplifiedTextHistory + "Processing...";
             
             // Call Gemini API directly
-            const simplified = await simplifyText(finalTranscript, targetLanguage);
+            const simplified = await simplifyText(finalTranscript);
             
-            // Visual feedback animation
-            gsap.to(simplifiedBox, {
-                boxShadow: "0 0 40px 10px rgba(99, 102, 241, 0.3)",
-                duration: 0.3,
-                yoyo: true,
-                repeat: 1,
-                ease: "power1.inOut"
-            });
+            // Only update if we got a valid response
+            if (simplified) {
+                // Visual feedback animation
+                gsap.to(simplifiedBox, {
+                    boxShadow: "0 0 40px 10px rgba(99, 102, 241, 0.3)",
+                    duration: 0.3,
+                    yoyo: true,
+                    repeat: 1,
+                    ease: "power1.inOut"
+                });
 
-            simplifiedTextHistory += simplified + ' ';
-            simplifiedCaption.textContent = simplifiedTextHistory;
-            playSignLanguage(simplified);
+                simplifiedTextHistory += simplified + ' ';
+                simplifiedCaption.textContent = simplifiedTextHistory;
+                playSignLanguage(simplified);
+            } else {
+                // Fallback: restore previous state if API fails
+                simplifiedCaption.textContent = simplifiedTextHistory || "Listening...";
+            }
         } else if (interimTranscript) {
             simplifiedCaption.textContent = simplifiedTextHistory + "Listening...";
         }

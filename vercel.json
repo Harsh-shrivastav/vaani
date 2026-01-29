@@ -1,5 +1,7 @@
 {
   "version": 2,
+  "buildCommand": "chmod +x build.sh && ./build.sh",
+  "outputDirectory": "client",
   "builds": [
     {
       "src": "client/**",
