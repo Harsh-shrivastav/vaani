@@ -344,6 +344,6 @@ copies or substantial portions of the Software.
 
 **Built for accessibility. Designed for everyone.**
 
-[![GitHub Stars](https://img.shields.io/github/stars/your-username/vaani?style=social)](https://github.com/your-username/vaani)
+
 
 </div>
