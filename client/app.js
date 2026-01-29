@@ -234,18 +234,21 @@ if (!window.SpeechRecognition) {
             videoPlayer.style.display = 'block';
             videoPlayer.muted = true; // Required for autoplay
             videoPlayer.src = nextVideoSrc;
+            videoPlayer.load(); // Load video before playing
             
-            // Try to play directly
-            videoPlayer.play()
-                .then(() => {
-                    console.log("Playing:", nextVideoSrc);
-                    hasPlayedAny = true;
-                })
-                .catch(e => {
-                    console.warn(`Video not available: ${nextVideoSrc}`, e.message);
-                    currentVideoIndex++;
-                    playNextVideo();
-                });
+            // Wait for video to be loadable then play
+            videoPlayer.onloadeddata = () => {
+                videoPlayer.play()
+                    .then(() => {
+                        console.log("Playing:", nextVideoSrc);
+                        hasPlayedAny = true;
+                    })
+                    .catch(e => {
+                        console.warn(`Video play failed: ${nextVideoSrc}`, e.message);
+                        currentVideoIndex++;
+                        playNextVideo();
+                    });
+            };
         }
 
         // When video ends, play next
