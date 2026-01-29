@@ -3,10 +3,10 @@
 // Google Cloud Technology Stack
 // ============================================
 
-// Configuration - Update for production
-const API_BASE_URL = window.location.hostname === 'localhost' 
-    ? 'http://127.0.0.1:8000'
-    : '/api';  // Cloud Run via Firebase Hosting rewrite
+// Configuration - Auto-detect environment
+const API_URL = window.location.hostname === 'localhost'
+    ? 'http://localhost:8000'
+    : 'https://vaani.onrender.com';
 
 // Page load animation using GSAP
 document.addEventListener('DOMContentLoaded', () => {
@@ -115,7 +115,7 @@ if (!window.SpeechRecognition) {
     // Send text to backend for AI simplification (Google Gemini)
     async function sendToBackend(textToSimplify, isFullReplace = false, language) {
         try {
-            const response = await fetch(`${API_BASE_URL}/simplify-text`, {
+            const response = await fetch(`${API_URL}/simplify-text`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ text: textToSimplify, language })
